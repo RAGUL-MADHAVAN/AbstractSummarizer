@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Batch Summarizer - GenAI Academic Summarizer{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Batch Summarizer</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="card-body">
+                    <h2 class="h4 mb-4">Batch Abstract Summarizer</h2>
+                    <p class="text-muted mb-4">
+                        Upload a CSV file containing multiple abstracts to generate summaries in bulk.
+                        The CSV must include a column named 'abstract' containing the text to be summarized.
+                    </p>
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Important Notes</h5>
+                        <ul class="mb-0">
+                            <li>Maximum file size: 5MB</li>
+                            <li>Supported formats: CSV (Comma Separated Values)</li>
+                            <li>Required column: 'abstract' (case sensitive)</li>
+                            <li>Processing time depends on the number of abstracts (approximately 5-10 seconds per abstract)</li>
+                        </ul>
+                    </div>
+                    <form method="POST" enctype="multipart/form-data" id="batchForm">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-4">
+                            <div class="file-upload-wrapper">
+                                <div class="file-upload-container text-center p-5 border rounded" 
+                                     id="dropZone" 
+                                     ondrop="handleDrop(event)" 
+                                     ondragover="handleDragOver(event)" 
+                                     ondragleave="handleDragLeave(event)">
+                                    <i class="fas fa-file-csv fa-3x text-primary mb-3"></i>
+                                    <h5>Drag and Drop your CSV file here</h5>
+                                    <p class="text-muted small mb-3">or</p>
+                                    <label for="{{ form.file.id }}" class="btn btn-outline-primary">
+                                        <i class="fas fa-folder-open me-2"></i> Browse Files
+                                        {{ form.file(class="d-none") }}
+                                    </label>
+                                    <p class="small text-muted mt-2 mb-0" id="fileInfo">No file selected</p>
+                                    {% if form.file.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.file.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('summarizer.download_template') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-download me-1"></i> Download Template
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="processBtn" disabled>
+                                <i class="fas fa-cogs me-1"></i> Process Batch
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Processing Modal -->
+            <div class="modal fade" id="processingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Processing Your Request</h5>
+                        </div>
+                        <div class="modal-body text-center">
+                            <div class="spinner-border text-primary mb-3" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mb-0" id="progressText">Preparing to process your file...</p>
+                            <div class="progress mt-3" style="height: 10px;">
+                                <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <p class="small text-muted mt-2 mb-0" id="statusText"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .file-upload-container {
+        border: 2px dashed #dee2e6;
+        transition: all 0.3s ease;
+    }
+    .file-upload-container.drag-over {
+        border-color: #0d6efd;
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+    .file-upload-container:hover {
+        border-color: #0d6efd;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Handle file selection
+    document.getElementById('{{ form.file.id }}').addEventListener('change', function(e) {
+        updateFileInfo(this.files[0]);
+    });
+    
+    // Handle drag and drop
+    function handleDrop(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const dropZone = document.getElementById('dropZone');
+        dropZone.classList.remove('drag-over');
+        
+        if (e.dataTransfer.files.length) {
+            const fileInput = document.getElementById('{{ form.file.id }}');
+            fileInput.files = e.dataTransfer.files;
+            updateFileInfo(fileInput.files[0]);
+        }
+    }
+    
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById('dropZone').classList.add('drag-over');
+    }
+    
+    function handleDragLeave(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById('dropZone').classList.remove('drag-over');
+    }
+    
+    function updateFileInfo(file) {
+        const fileInfo = document.getElementById('fileInfo');
+        const processBtn = document.getElementById('processBtn');
+        
+        if (file) {
+            fileInfo.innerHTML = `
+                <i class="fas fa-check-circle text-success me-1"></i>
+                <strong>${file.name}</strong> (${formatFileSize(file.size)})
+            `;
+            processBtn.disabled = false;
+        } else {
+            fileInfo.textContent = 'No file selected';
+            processBtn.disabled = true;
+        }
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Form submission with progress tracking
+    document.getElementById('batchForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const form = e.target;
+        const formData = new FormData(form);
+        const processBtn = document.getElementById('processBtn');
+        const originalBtnText = processBtn.innerHTML;
+        
+        // Show processing modal
+        const processingModal = new bootstrap.Modal(document.getElementById('processingModal'));
+        processingModal.show();
+        
+        // Update progress
+        function updateProgress(progress) {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const statusText = document.getElementById('statusText');
+            
+            progressBar.style.width = `${progress}%`;
+            
+            if (progress < 30) {
+                progressText.textContent = 'Uploading file...';
+                statusText.textContent = 'Please wait while we process your request.';
+            } else if (progress < 70) {
+                progressText.textContent = 'Processing abstracts...';
+                statusText.textContent = 'This may take a few minutes depending on the number of abstracts.';
+            } else {
+                progressText.textContent = 'Finalizing...';
+                statusText.textContent = 'Almost done! Preparing your results...';
+            }
+        }
+        
+        // Simulate progress (in a real app, you'd use actual upload/processing progress)
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += Math.floor(Math.random() * 5) + 1;
+            if (progress >= 100) progress = 99; // Don't go to 100% until done
+            updateProgress(progress);
+        }, 500);
+        
+        // Make AJAX request
+        fetch('{{ url_for("summarizer.batch") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            clearInterval(progressInterval);
+            updateProgress(100);
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            // Redirect to results page
+            window.location.href = data.redirect_url;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            clearInterval(progressInterval);
+            
+            // Hide modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('processingModal'));
+            if (modal) modal.hide();
+            
+            // Show error message
+            alert('An error occurred while processing your file: ' + error.message);
+        });
+    });
+    
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        document.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,9 @@
+body { background-color: #f8f9fa; }
+.navbar-brand { font-weight: 600; }
+.card { border-radius: 0.5rem; }
+footer { margin-top: 2rem; }
+.breadcrumb { --bs-breadcrumb-divider: '>'; }
+.text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Utility: fixed max width used in result previews */
+.max-w-300 { max-width: 300px; }

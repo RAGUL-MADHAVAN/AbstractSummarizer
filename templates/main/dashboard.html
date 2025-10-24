@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - GenAI Academic Abstract Summarizer{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2">Dashboard</h1>
+            <p class="lead">Welcome back, {{ current_user.username }}! What would you like to do today?</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Single Abstract Card -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
+                            <i class="fas fa-file-alt fa-2x text-primary"></i>
+                        </div>
+                        <h2 class="h4 mb-0">Single Abstract</h2>
+                    </div>
+                    <p class="text-muted">Paste a single academic abstract and get a concise summary instantly.</p>
+                    <a href="{{ url_for('summarizer.single') }}" class="btn btn-primary">Summarize Now</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Batch Processing Card -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-3 me-3">
+                            <i class="fas fa-file-csv fa-2x text-success"></i>
+                        </div>
+                        <h2 class="h4 mb-0">Batch Processing</h2>
+                    </div>
+                    <p class="text-muted">Upload a CSV file containing multiple abstracts and get summaries for all of them at once.</p>
+                    <a href="{{ url_for('summarizer.batch') }}" class="btn btn-success">Process Batch</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Card -->
+        <div class="col-12 mt-4">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Recent Activity</h2>
+                    <a href="{{ url_for('main.history') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_summaries %}
+                        <div class="list-group list-group-flush">
+                            {% for summary in recent_summaries %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">
+                                            {% if summary.is_batch %}
+                                                <span class="badge bg-success me-2">Batch</span>
+                                            {% else %}
+                                                <span class="badge bg-primary me-2">Single</span>
+                                            {% endif %}
+                                            {{ summary.original_text[:100] }}{% if summary.original_text|length > 100 %}...{% endif %}
+                                        </h6>
+                                        <small class="text-muted">{{ summary.timestamp|datetimeformat('%b %d, %Y') }}</small>
+                                    </div>
+                                    <p class="mb-1 small text-muted">
+                                        {{ summary.summary[:150] }}{% if summary.summary|length > 150 %}...{% endif %}
+                                    </p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No recent activity found. Get started by summarizing an abstract!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mt-4">
+        <div class="col-md-4 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-white-50 small">Total Summaries</h6>
+                            <h2 class="mb-0">{{ current_user.summaries.count() }}</h2>
+                        </div>
+                        <i class="fas fa-file-alt fa-3x opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-white-50 small">Batch Jobs</h6>
+                            <h2 class="mb-0">{{ current_user.summaries.filter_by(is_batch=True).count() }}</h2>
+                        </div>
+                        <i class="fas fa-file-csv fa-3x opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-white-50 small">Member Since</h6>
+                            <h2 class="mb-0">{{ current_user.member_since.strftime('%b %Y') }}</h2>
+                        </div>
+                        <i class="fas fa-calendar-alt fa-3x opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}About - GenAI Academic Abstract Summarizer{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <h1 class="text-center mb-4">About GenAI Academic Abstract Summarizer</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4">Project Overview</h2>
+                    <p>The GenAI Academic Abstract Summarizer is designed to help researchers, students, and academics quickly understand the key points of academic papers by generating concise summaries. Our tool uses advanced natural language processing to extract the most important information from lengthy abstracts, saving you valuable time in your literature review process.</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4">Technology Stack</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3 class="h5">Backend</h3>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-server text-primary me-2"></i> Python 3.9+</li>
+                                <li><i class="fab fa-python text-primary me-2"></i> Flask Web Framework</li>
+                                <li><i class="fas fa-database text-primary me-2"></i> SQLAlchemy ORM</li>
+                                <li><i class="fas fa-key text-primary me-2"></i> Flask-Login for Authentication</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="h5">AI & ML</h3>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-brain text-primary me-2"></i> Hugging Face Transformers</li>
+                                <li><i class="fas fa-project-diagram text-primary me-2"></i> BART Large CNN Model</li>
+                                <li><i class="fas fa-file-csv text-primary me-2"></i> Pandas for Data Processing</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h3 class="h5">Frontend</h3>
+                            <ul class="list-unstyled">
+                                <li><i class="fab fa-html5 text-primary me-2"></i> HTML5</li>
+                                <li><i class="fab fa-css3-alt text-primary me-2"></i> CSS3 & Bootstrap 5</li>
+                                <li><i class="fab fa-js text-primary me-2"></i> JavaScript</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="h5">Database</h3>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-database text-primary me-2"></i> SQLite (Development)</li>
+                                <li><i class="fas fa-exchange-alt text-primary me-2"></i> Flask-Migrate for Database Migrations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4">Key Features</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex mb-3">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                </div>
+                                <div>
+                                    <h5 class="h6 mb-1">Single Abstract Summarization</h5>
+                                    <p class="small text-muted mb-0">Paste any academic abstract and get a concise summary instantly.</p>
+                                </div>
+                            </div>
+                            <div class="d-flex mb-3">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                </div>
+                                <div>
+                                    <h5 class="h6 mb-1">Batch Processing</h5>
+                                    <p class="small text-muted mb-0">Upload multiple abstracts in CSV format and process them in one go.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex mb-3">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                </div>
+                                <div>
+                                    <h5 class="h6 mb-1">User Accounts</h5>
+                                    <p class="small text-muted mb-0">Save your summarization history and access it anytime.</p>
+                                </div>
+                            </div>
+                            <div class="d-flex mb-3">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                </div>
+                                <div>
+                                    <h5 class="h6 mb-1">Responsive Design</h5>
+                                    <p class="small text-muted mb-0">Works seamlessly on desktop, tablet, and mobile devices.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4">About the AI Model</h2>
+                    <p>Our application uses the <strong>BART (Bidirectional and Auto-Regressive Transformers)</strong> model, specifically the <code>facebook/bart-large-cnn</code> variant, which is fine-tuned for text summarization tasks. This model is particularly effective at:</p>
+                    <ul>
+                        <li>Generating fluent and coherent summaries</li>
+                        <li>Preserving key information from the original text</li>
+                        <li>Handling academic and technical language</li>
+                        <li>Producing consistent output quality across various domains</li>
+                    </ul>
+                    <p>The model was trained on a large corpus of news articles and their corresponding summaries, making it well-suited for extracting the most important information from dense academic texts.</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h4">Privacy & Security</h2>
+                    <p>We take your privacy and data security seriously:</p>
+                    <ul>
+                        <li>All user data is encrypted in transit using HTTPS</li>
+                        <li>Passwords are hashed using bcrypt before storage</li>
+                        <li>We don't share your data with third parties</li>
+                        <li>You can delete your account and all associated data at any time</li>
+                    </ul>
+                    <p class="mb-0">For more information, please review our <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

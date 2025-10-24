@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}History - GenAI Academic Summarizer{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="h5 mb-0">Your Summarization History</h2>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-sm btn-outline-secondary">
+          <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+        </a>
+      </div>
+      <div class="card-body">
+        {% if summaries %}
+        <div class="list-group list-group-flush">
+          {% for summary in summaries %}
+          <div class="list-group-item">
+            <div class="d-flex w-100 justify-content-between">
+              <h6 class="mb-1">
+                {% if summary.is_batch %}
+                <span class="badge bg-success me-2">Batch</span>
+                {% else %}
+                <span class="badge bg-primary me-2">Single</span>
+                {% endif %}
+                {{ summary.original_text[:120] }}{% if summary.original_text|length > 120 %}...{% endif %}
+              </h6>
+              <small class="text-muted">{{ summary.timestamp|datetimeformat('%b %d, %Y %H:%M') }}</small>
+            </div>
+            <p class="mb-1 small text-muted">{{ summary.summary[:200] }}{% if summary.summary|length > 200 %}...{% endif %}</p>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+          <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+          <p class="text-muted mb-0">No history yet. Try running a summary!</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
